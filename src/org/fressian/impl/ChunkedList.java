@@ -5,10 +5,10 @@ package org.fressian.impl;
  * copy-on-grow behavior of ArrayList.
  * 
  * For a list of N elements:
- * - ArrayList allocates ~3.2N slots total (due to repeated copying during growth)
- * - ChunkedList allocates ~N slots total (just the chunks, no copying)
+ * - ArrayList allocates ~4N slots total (due to repeated copying during growth + toArray)
+ * - ChunkedList allocates ~2N slots total (chunks + toArray, but no copying during growth)
  * 
- * This results in ~70% reduction in allocation overhead for large lists.
+ * This results in 51-62% reduction in allocation overhead, confirmed by JMH benchmarks.
  */
 public class ChunkedList {
     // Use power of 2 for fast division/modulo via bit operations
