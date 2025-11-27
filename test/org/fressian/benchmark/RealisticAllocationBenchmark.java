@@ -11,15 +11,13 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Benchmark with REALISTIC list sizes based on production JFR data.
+ * Benchmark comparing ArrayList vs ChunkedList allocation overhead.
  * 
- * JFR Analysis showed:
- * - P10:  ~30K elements  (arrays of ~250 kB)
- * - P25:  ~137K elements (arrays of ~1.1 MB)
- * - P50:  ~187K elements (arrays of ~1.5 MB) - MEDIAN
- * - P75:  ~250K elements (arrays of ~2.0 MB)
- * - P90:  ~312K elements (arrays of ~2.5 MB)
- * - P99:  ~487K elements (arrays of ~3.9 MB)
+ * Tests a range of list sizes from tiny (10 elements) to large (250K elements)
+ * to verify behavior across all use cases.
+ * 
+ * Metrics reported by JMH gc profiler:
+ * - gc.alloc.rate.norm: bytes allocated per operation (normalized)
  * 
  * Run with: java -jar target/benchmarks.jar RealisticAllocationBenchmark -prof gc
  */
@@ -31,14 +29,16 @@ import java.util.concurrent.TimeUnit;
 @Fork(value = 2, jvmArgs = {"-Xms4G", "-Xmx4G"})
 public class RealisticAllocationBenchmark {
 
-    // Realistic sizes from production JFR data
+    // Range of sizes: small lists to large lists from production JFR data
     @Param({
-        "30000",   // P10 - small lists
-        "137500",  // P25 
-        "187500",  // P50 - MEDIAN (most common)
-        "250000",  // P75
-        "312500",  // P90
-        "487500"   // P99 - large lists
+        "10",      // Tiny lists
+        "100",     // Small lists
+        "1000",    // Medium lists
+        "10000",   // Large lists
+        "30000",   // P10 from JFR
+        "100000",  // ~P20 from JFR
+        "187500",  // P50 from JFR - MEDIAN
+        "250000"   // P75 from JFR
     })
     private int listSize;
     
