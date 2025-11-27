@@ -818,7 +818,7 @@ public class FressianReader implements Reader, Closeable {
     }
 
     private Object[] readClosedList() throws IOException {
-        ArrayList objects = new ArrayList();
+        ChunkedList objects = new ChunkedList();
         while (true) {
             int code = readNextCode();
             if (code == Codes.END_COLLECTION) {
@@ -829,7 +829,7 @@ public class FressianReader implements Reader, Closeable {
     }
 
     private Object[] readOpenList() throws IOException {
-        ArrayList objects = new ArrayList();
+        ChunkedList objects = new ChunkedList();
         int code;
         while (true) {
             try {
