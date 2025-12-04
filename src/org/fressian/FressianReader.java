@@ -818,29 +818,37 @@ public class FressianReader implements Reader, Closeable {
     }
 
     private Object[] readClosedList() throws IOException {
-        ArrayList objects = new ArrayList();
-        while (true) {
-            int code = readNextCode();
-            if (code == Codes.END_COLLECTION) {
-                return objects.toArray();
+        ArrayList<Object> objects = ListBufferPool.acquire();
+        try {
+            while (true) {
+                int code = readNextCode();
+                if (code == Codes.END_COLLECTION) {
+                    return objects.toArray();
+                }
+                objects.add(read(code));
             }
-            objects.add(read(code));
+        } finally {
+            ListBufferPool.release(objects);
         }
     }
 
     private Object[] readOpenList() throws IOException {
-        ArrayList objects = new ArrayList();
-        int code;
-        while (true) {
-            try {
-                code = readNextCode();
-            } catch (EOFException e) {
-                code = Codes.END_COLLECTION;
+        ArrayList<Object> objects = ListBufferPool.acquire();
+        try {
+            int code;
+            while (true) {
+                try {
+                    code = readNextCode();
+                } catch (EOFException e) {
+                    code = Codes.END_COLLECTION;
+                }
+                if (code == Codes.END_COLLECTION) {
+                    return objects.toArray();
+                }
+                objects.add(read(code));
             }
-            if (code == Codes.END_COLLECTION) {
-                return objects.toArray();
-            }
-            objects.add(read(code));
+        } finally {
+            ListBufferPool.release(objects);
         }
     }
 
